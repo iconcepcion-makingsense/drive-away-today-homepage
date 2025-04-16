@@ -8,6 +8,7 @@ import {
   CommandGroup,
   CommandInput,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import {
   Popover,
@@ -66,30 +67,32 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       <PopoverContent className="w-full p-0 bg-white" align="start">
         <Command>
           <CommandInput placeholder="Search location..." className="h-9" />
-          <CommandEmpty>No location found.</CommandEmpty>
-          <CommandGroup>
-            {locations.map((location) => (
-              <CommandItem
-                key={location.value}
-                value={location.value}
-                onSelect={(currentValue) => {
-                  onChange(currentValue === value ? "" : currentValue);
-                  setOpen(false);
-                }}
-              >
-                <div className="flex items-center">
-                  <MapPin className="mr-2 h-4 w-4 text-blue-600" />
-                  {location.label}
-                </div>
-                <Check
-                  className={cn(
-                    "ml-auto h-4 w-4",
-                    value === location.value ? "opacity-100" : "opacity-0"
-                  )}
-                />
-              </CommandItem>
-            ))}
-          </CommandGroup>
+          <CommandList>
+            <CommandEmpty>No location found.</CommandEmpty>
+            <CommandGroup>
+              {locations.map((location) => (
+                <CommandItem
+                  key={location.value}
+                  value={location.value}
+                  onSelect={(currentValue) => {
+                    onChange(currentValue === value ? "" : currentValue);
+                    setOpen(false);
+                  }}
+                >
+                  <div className="flex items-center">
+                    <MapPin className="mr-2 h-4 w-4 text-blue-600" />
+                    {location.label}
+                  </div>
+                  <Check
+                    className={cn(
+                      "ml-auto h-4 w-4",
+                      value === location.value ? "opacity-100" : "opacity-0"
+                    )}
+                  />
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </CommandList>
         </Command>
       </PopoverContent>
     </Popover>
