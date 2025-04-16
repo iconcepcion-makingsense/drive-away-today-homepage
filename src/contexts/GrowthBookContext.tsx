@@ -34,7 +34,27 @@ growthbook.setFeatures({
       variant: "default",
       buttonColor: "blue",
       buttonText: "Search"
-    }
+    },
+    rules: [
+      {
+        condition: { id: "everyone" },
+        force: { 
+          variant: "default", 
+          buttonColor: "blue", 
+          buttonText: "Search" 
+        },
+        coverage: 0.5
+      },
+      {
+        condition: { id: "everyone" },
+        force: { 
+          variant: "separate-dates", 
+          buttonColor: "blue", 
+          buttonText: "Search Cars" 
+        },
+        coverage: 0.5
+      }
+    ]
   }
   // You can add more feature flags here
 });
