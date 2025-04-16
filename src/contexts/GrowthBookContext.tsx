@@ -36,9 +36,9 @@ const growthbook = new GrowthBook({
 growthbook.setFeatures({
   "search-panel-variant": {
     defaultValue: {
-      variant: "default",
+      variant: "separate-dates",
       buttonColor: "blue",
-      buttonText: "Search"
+      buttonText: "Search Cars"
     },
     rules: [
       {
