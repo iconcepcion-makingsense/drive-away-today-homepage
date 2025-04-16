@@ -1,11 +1,16 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { GrowthBook, GrowthBookProvider } from '@growthbook/growthbook-react';
+import { toast } from "@/components/ui/use-toast";
+
+// GrowthBook client key from your GrowthBook dashboard
+// For development, using a placeholder value
+const CLIENT_KEY = "sdk-abc123"; // Replace this with your actual client key from GrowthBook
 
 // Initialize GrowthBook with proper defaults
 const growthbook = new GrowthBook({
-  apiHost: import.meta.env.VITE_GROWTHBOOK_API_HOST || "https://cdn.growthbook.io",
-  clientKey: import.meta.env.VITE_GROWTHBOOK_CLIENT_KEY || "",
+  apiHost: "https://cdn.growthbook.io", // Default API host
+  clientKey: CLIENT_KEY,
   // We'll automatically track experiment views
   trackingCallback: (experiment, result) => {
     console.log("Experiment Viewed:", experiment.key, result.variationId);
@@ -78,6 +83,14 @@ export const GrowthBookWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
     // Load GrowthBook features when component mounts
     const loadGrowthBook = async () => {
       try {
+        // Check if client key is properly set
+        if (!CLIENT_KEY || CLIENT_KEY === "sdk-abc123") {
+          console.warn("GrowthBook client key not set or using placeholder. Using local feature definitions.");
+          // Still mark as ready so we use local definitions
+          setReady(true);
+          return;
+        }
+
         await growthbook.loadFeatures();
         console.log("GrowthBook features loaded successfully");
         
@@ -85,9 +98,29 @@ export const GrowthBookWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
         const features = growthbook.getFeatures();
         console.log("Available features:", features);
         
+        // Show success toast in development
+        if (import.meta.env.DEV) {
+          toast({
+            title: "GrowthBook Connected",
+            description: "Feature flags loaded successfully.",
+            duration: 3000,
+          });
+        }
+        
         setReady(true);
       } catch (error) {
         console.error("Failed to load GrowthBook features:", error);
+        
+        // Show error toast in development
+        if (import.meta.env.DEV) {
+          toast({
+            title: "GrowthBook Connection Error",
+            description: "Using local feature definitions instead.",
+            variant: "destructive",
+            duration: 5000,
+          });
+        }
+        
         // Still set ready to true so the app doesn't get stuck
         setReady(true);
       }
@@ -96,7 +129,11 @@ export const GrowthBookWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
     loadGrowthBook();
 
     // Update context when window is focused (in case features have changed)
-    const refreshFeatures = () => growthbook.refreshFeatures();
+    const refreshFeatures = () => {
+      if (CLIENT_KEY && CLIENT_KEY !== "sdk-abc123") {
+        growthbook.refreshFeatures();
+      }
+    };
     window.addEventListener("focus", refreshFeatures);
     return () => window.removeEventListener("focus", refreshFeatures);
   }, []);
