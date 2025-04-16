@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import LocationSelector from "./LocationSelector";
 import DateRangePicker from "./DateRangePicker";
 import { Search } from "lucide-react";
+import { useFeature } from "@growthbook/growthbook-react";
 
 interface SearchPanelProps {
   className?: string;
@@ -24,6 +25,13 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
     to: undefined,
   });
 
+  // Get the experiment variation from GrowthBook
+  const searchExperiment = useFeature("search-panel-variant", {
+    variant: "default",
+    buttonColor: "blue",
+    buttonText: "Search"
+  });
+
   const handleSearch = () => {
     console.log("Searching for cars with:", {
       location,
@@ -33,6 +41,47 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
     // This would typically trigger an API call or navigation
   };
 
+  // Get the button color based on the experiment
+  const buttonColor = searchExperiment.value.buttonColor === "green" 
+    ? "bg-green-600 hover:bg-green-700" 
+    : "bg-blue-600 hover:bg-blue-700";
+
+  // Get the button text based on the experiment
+  const buttonText = searchExperiment.value.buttonText || "Search";
+
+  // Render either the default or variant B based on the experiment
+  if (searchExperiment.value.variant === "compact") {
+    // Compact variant
+    return (
+      <Card className={`bg-white shadow-lg ${className}`}>
+        <CardContent className="p-4">
+          <div className="flex flex-col space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <LocationSelector
+                value={location}
+                onChange={setLocation}
+                id="location"
+              />
+              <DateRangePicker
+                value={dateRange}
+                onChange={setDateRange}
+                id="dates"
+              />
+            </div>
+            <Button
+              className={`w-full ${buttonColor} h-10`}
+              onClick={handleSearch}
+              disabled={!location || !dateRange.from || !dateRange.to}
+            >
+              <Search className="mr-2 h-4 w-4" /> {buttonText}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Default variant
   return (
     <Card className={`bg-white shadow-lg ${className}`}>
       <CardContent className="p-6">
@@ -64,11 +113,11 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
           {/* Search Button */}
           <div className="md:col-span-2 flex items-end">
             <Button
-              className="w-full bg-blue-600 hover:bg-blue-700 h-10"
+              className={`w-full ${buttonColor} h-10`}
               onClick={handleSearch}
               disabled={!location || !dateRange.from || !dateRange.to}
             >
-              <Search className="mr-2 h-4 w-4" /> Search
+              <Search className="mr-2 h-4 w-4" /> {buttonText}
             </Button>
           </div>
         </div>
