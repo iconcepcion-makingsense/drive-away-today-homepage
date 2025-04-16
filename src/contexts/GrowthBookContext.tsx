@@ -5,7 +5,7 @@ import { toast } from "@/components/ui/use-toast";
 
 // GrowthBook client key from your GrowthBook dashboard
 // For development, using a placeholder value
-const CLIENT_KEY = "sdk-abc123"; // Replace this with your actual client key from GrowthBook
+const CLIENT_KEY = "sdk-UJg9fpEtmfOWmn"; // Replace this with your actual client key from GrowthBook
 
 // Initialize GrowthBook with proper defaults
 const growthbook = new GrowthBook({
