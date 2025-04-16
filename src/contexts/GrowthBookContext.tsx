@@ -84,7 +84,7 @@ export const GrowthBookWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
     const loadGrowthBook = async () => {
       try {
         // Check if client key is properly set
-        if (!CLIENT_KEY || CLIENT_KEY === "sdk-abc123") {
+        if (!CLIENT_KEY || CLIENT_KEY === "sdk-UJg9fpEtmfOWmn") {
           console.warn("GrowthBook client key not set or using placeholder. Using local feature definitions.");
           // Still mark as ready so we use local definitions
           setReady(true);
@@ -130,7 +130,7 @@ export const GrowthBookWrapper: React.FC<{ children: React.ReactNode }> = ({ chi
 
     // Update context when window is focused (in case features have changed)
     const refreshFeatures = () => {
-      if (CLIENT_KEY && CLIENT_KEY !== "sdk-abc123") {
+      if (CLIENT_KEY && CLIENT_KEY !== "sdk-UJg9fpEtmfOWmn") {
         growthbook.refreshFeatures();
       }
     };
