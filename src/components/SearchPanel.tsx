@@ -25,12 +25,8 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
     to: undefined,
   });
 
-  // Get the experiment variation from GrowthBook with default values
-  const searchExperiment = useFeature("search-panel-variant", {
-    variant: "default",
-    buttonColor: "blue",
-    buttonText: "Search"
-  }).value;
+  // Get the experiment variation from GrowthBook
+  const searchExperiment = useFeature("search-panel-variant").value;
 
   const handleSearch = () => {
     console.log("Searching for cars with:", {
