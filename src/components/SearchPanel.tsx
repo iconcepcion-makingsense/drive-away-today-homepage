@@ -25,12 +25,12 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
     to: undefined,
   });
 
-  // Get the experiment variation from GrowthBook
+  // Get the experiment variation from GrowthBook with default values
   const searchExperiment = useFeature("search-panel-variant", {
     variant: "default",
     buttonColor: "blue",
     buttonText: "Search"
-  });
+  }).value;
 
   const handleSearch = () => {
     console.log("Searching for cars with:", {
@@ -41,16 +41,19 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
     // This would typically trigger an API call or navigation
   };
 
-  // Get the button color based on the experiment
-  const buttonColor = searchExperiment.value.buttonColor === "green" 
+  // Get the button color with fallback
+  const buttonColor = (searchExperiment?.buttonColor || "blue") === "green" 
     ? "bg-green-600 hover:bg-green-700" 
     : "bg-blue-600 hover:bg-blue-700";
 
-  // Get the button text based on the experiment
-  const buttonText = searchExperiment.value.buttonText || "Search";
+  // Get the button text with fallback
+  const buttonText = searchExperiment?.buttonText || "Search";
+
+  // Use a default variant if none is specified
+  const variant = searchExperiment?.variant || "default";
 
   // Render either the default or variant B based on the experiment
-  if (searchExperiment.value.variant === "compact") {
+  if (variant === "compact") {
     // Compact variant
     return (
       <Card className={`bg-white shadow-lg ${className}`}>
