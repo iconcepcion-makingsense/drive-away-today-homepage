@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar as CalendarUI } from "./ui/calendar";
 import { cn } from "@/lib/utils";
 import { useSearchVariant } from "@/hooks/useSearchVariant";
+import { pushEvent } from "@/utils/gtm";
 
 interface SearchPanelProps {
   className?: string;
@@ -28,10 +29,8 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
-  // Get the variant from our custom hook
   const variant = useSearchVariant();
 
-  // Update dateRange when separate pickers change
   React.useEffect(() => {
     if (variant === "separate-dates" && (startDate !== dateRange.from || endDate !== dateRange.to)) {
       setDateRange({
@@ -42,6 +41,12 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
   }, [startDate, endDate, variant]);
 
   const handleSearch = () => {
+    pushEvent('car_search', {
+      location,
+      pickup_date: dateRange.from?.toISOString(),
+      return_date: dateRange.to?.toISOString(),
+    });
+
     console.log("Searching for cars with:", {
       location,
       pickupDate: dateRange.from,
@@ -49,13 +54,11 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
     });
   };
 
-  // Render separate date pickers variation
   if (variant === "separate-dates") {
     return (
       <Card className={`bg-white shadow-lg ${className}`}>
         <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-            {/* Location Selector */}
             <div className="md:col-span-4">
               <Label htmlFor="location" className="mb-2 block font-medium">
                 Pickup Location
@@ -67,7 +70,6 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
               />
             </div>
 
-            {/* Start Date Picker */}
             <div className="md:col-span-3">
               <Label htmlFor="start-date" className="mb-2 block font-medium">
                 Pickup Date
@@ -99,7 +101,6 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
               </Popover>
             </div>
 
-            {/* End Date Picker */}
             <div className="md:col-span-3">
               <Label htmlFor="end-date" className="mb-2 block font-medium">
                 Return Date
@@ -131,7 +132,6 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
               </Popover>
             </div>
 
-            {/* Search Button */}
             <div className="md:col-span-2 flex items-end">
               <Button
                 className="w-full bg-blue-600 hover:bg-blue-700 h-10"
@@ -147,7 +147,6 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
     );
   }
 
-  // Default variant (single date range picker)
   return (
     <Card className={`bg-white shadow-lg ${className}`}>
       <CardContent className="p-6">
