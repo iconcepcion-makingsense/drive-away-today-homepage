@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +11,13 @@ import { Calendar as CalendarUI } from "./ui/calendar";
 import { cn } from "@/lib/utils";
 import { useSearchVariant } from "@/hooks/useSearchVariant";
 import { pushEvent } from "@/utils/gtm";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 interface SearchPanelProps {
   className?: string;
@@ -29,6 +35,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
   
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [showDialog, setShowDialog] = useState(false);
 
   const variant = useSearchVariant();
 
@@ -48,6 +55,8 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
       return_date: dateRange.to?.toISOString(),
     });
 
+    setShowDialog(true);
+
     console.log("Searching for cars with:", {
       location,
       pickupDate: dateRange.from,
@@ -55,8 +64,119 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
     });
   };
 
+  const handleDialogClose = () => {
+    setShowDialog(false);
+  };
+
   if (variant === "separate-dates") {
     return (
+      <>
+        <Card className={`bg-white shadow-lg ${className}`} id="search-panel">
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+              <div className="md:col-span-4">
+                <Label htmlFor="location" className="mb-2 block font-medium">
+                  Pickup Location
+                </Label>
+                <LocationSelector
+                  value={location}
+                  onChange={setLocation}
+                  id="location-selector"
+                />
+              </div>
+
+              <div className="md:col-span-3">
+                <Label htmlFor="start-date" className="mb-2 block font-medium">
+                  Pickup Date
+                </Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="pickup-date"
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal bg-white",
+                        !startDate && "text-muted-foreground"
+                      )}
+                    >
+                      <Calendar className="mr-2 h-4 w-4 text-blue-600" />
+                      {startDate ? format(startDate, "MMM d, yyyy") : "Select date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarUI
+                      mode="single"
+                      selected={startDate}
+                      onSelect={setStartDate}
+                      initialFocus
+                      disabled={(date) => date < new Date()}
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div className="md:col-span-3">
+                <Label htmlFor="end-date" className="mb-2 block font-medium">
+                  Return Date
+                </Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      id="return-date"
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal bg-white",
+                        !endDate && "text-muted-foreground"
+                      )}
+                    >
+                      <Calendar className="mr-2 h-4 w-4 text-blue-600" />
+                      {endDate ? format(endDate, "MMM d, yyyy") : "Select date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <CalendarUI
+                      mode="single"
+                      selected={endDate}
+                      onSelect={setEndDate}
+                      initialFocus
+                      disabled={(date) => date < new Date() || (startDate && date < startDate)}
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div className="md:col-span-2 flex items-end">
+                <Button
+                  id="search-button"
+                  className="w-full bg-blue-600 hover:bg-blue-700 h-10"
+                  onClick={handleSearch}
+                  disabled={!location || !startDate || !endDate}
+                >
+                  <Search className="mr-2 h-4 w-4" /> Search
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Dialog open={showDialog} onOpenChange={handleDialogClose}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Success</DialogTitle>
+            </DialogHeader>
+            <div className="py-4">Conversion registered</div>
+            <DialogFooter>
+              <Button onClick={handleDialogClose}>Accept</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
+
+  return (
+    <>
       <Card className={`bg-white shadow-lg ${className}`} id="search-panel">
         <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
@@ -71,66 +191,15 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
               />
             </div>
 
-            <div className="md:col-span-3">
-              <Label htmlFor="start-date" className="mb-2 block font-medium">
-                Pickup Date
+            <div className="md:col-span-6">
+              <Label htmlFor="dates" className="mb-2 block font-medium">
+                Rental Period
               </Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    id="pickup-date"
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal bg-white",
-                      !startDate && "text-muted-foreground"
-                    )}
-                  >
-                    <Calendar className="mr-2 h-4 w-4 text-blue-600" />
-                    {startDate ? format(startDate, "MMM d, yyyy") : "Select date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <CalendarUI
-                    mode="single"
-                    selected={startDate}
-                    onSelect={setStartDate}
-                    initialFocus
-                    disabled={(date) => date < new Date()}
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            <div className="md:col-span-3">
-              <Label htmlFor="end-date" className="mb-2 block font-medium">
-                Return Date
-              </Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    id="return-date"
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal bg-white",
-                      !endDate && "text-muted-foreground"
-                    )}
-                  >
-                    <Calendar className="mr-2 h-4 w-4 text-blue-600" />
-                    {endDate ? format(endDate, "MMM d, yyyy") : "Select date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <CalendarUI
-                    mode="single"
-                    selected={endDate}
-                    onSelect={setEndDate}
-                    initialFocus
-                    disabled={(date) => date < new Date() || (startDate && date < startDate)}
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
+              <DateRangePicker
+                value={dateRange}
+                onChange={setDateRange}
+                id="date-range-picker"
+              />
             </div>
 
             <div className="md:col-span-2 flex items-end">
@@ -138,7 +207,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
                 id="search-button"
                 className="w-full bg-blue-600 hover:bg-blue-700 h-10"
                 onClick={handleSearch}
-                disabled={!location || !startDate || !endDate}
+                disabled={!location || !dateRange.from || !dateRange.to}
               >
                 <Search className="mr-2 h-4 w-4" /> Search
               </Button>
@@ -146,48 +215,18 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
           </div>
         </CardContent>
       </Card>
-    );
-  }
-
-  return (
-    <Card className={`bg-white shadow-lg ${className}`} id="search-panel">
-      <CardContent className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-          <div className="md:col-span-4">
-            <Label htmlFor="location" className="mb-2 block font-medium">
-              Pickup Location
-            </Label>
-            <LocationSelector
-              value={location}
-              onChange={setLocation}
-              id="location-selector"
-            />
-          </div>
-
-          <div className="md:col-span-6">
-            <Label htmlFor="dates" className="mb-2 block font-medium">
-              Rental Period
-            </Label>
-            <DateRangePicker
-              value={dateRange}
-              onChange={setDateRange}
-              id="date-range-picker"
-            />
-          </div>
-
-          <div className="md:col-span-2 flex items-end">
-            <Button
-              id="search-button"
-              className="w-full bg-blue-600 hover:bg-blue-700 h-10"
-              onClick={handleSearch}
-              disabled={!location || !dateRange.from || !dateRange.to}
-            >
-              <Search className="mr-2 h-4 w-4" /> Search
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+      <Dialog open={showDialog} onOpenChange={handleDialogClose}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Success</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">Conversion registered</div>
+          <DialogFooter>
+            <Button onClick={handleDialogClose}>Accept</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
