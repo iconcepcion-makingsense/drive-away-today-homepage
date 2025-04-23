@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -6,11 +5,11 @@ import { Label } from "@/components/ui/label";
 import LocationSelector from "./LocationSelector";
 import DateRangePicker from "./DateRangePicker";
 import { Search, Calendar } from "lucide-react";
-import { useFeature } from "@growthbook/growthbook-react";
 import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar as CalendarUI } from "./ui/calendar";
 import { cn } from "@/lib/utils";
+import { useSearchVariant } from "@/hooks/useSearchVariant";
 
 interface SearchPanelProps {
   className?: string;
@@ -29,18 +28,18 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
   const [startDate, setStartDate] = useState<Date | undefined>(undefined);
   const [endDate, setEndDate] = useState<Date | undefined>(undefined);
 
-  // Get the experiment variation from GrowthBook
-  const variation = useFeature("search-panel-variant").value;
+  // Get the variant from our custom hook
+  const variant = useSearchVariant();
 
   // Update dateRange when separate pickers change
   React.useEffect(() => {
-    if (variation === "separate-dates" && (startDate !== dateRange.from || endDate !== dateRange.to)) {
+    if (variant === "separate-dates" && (startDate !== dateRange.from || endDate !== dateRange.to)) {
       setDateRange({
         from: startDate,
         to: endDate
       });
     }
-  }, [startDate, endDate, variation]);
+  }, [startDate, endDate, variant]);
 
   const handleSearch = () => {
     console.log("Searching for cars with:", {
@@ -51,7 +50,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
   };
 
   // Render separate date pickers variation
-  if (variation === "separate-dates") {
+  if (variant === "separate-dates") {
     return (
       <Card className={`bg-white shadow-lg ${className}`}>
         <CardContent className="p-6">
