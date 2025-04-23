@@ -11,7 +11,7 @@ const Index = () => {
   const { ready, growthbook } = useGrowthBook();
   
   // Check if we're using the placeholder client key
-  const isUsingPlaceholder = !growthbook.clientKey || growthbook.clientKey === "sdk-abc123";
+  const isUsingPlaceholder = !growthbook.getClientKey() || growthbook.getClientKey() === "sdk-UJg9fpEtmfOWmn";
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
