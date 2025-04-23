@@ -66,7 +66,11 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
       </PopoverTrigger>
       <PopoverContent className="w-full p-0 bg-white" align="start">
         <Command>
-          <CommandInput placeholder="Search location..." className="h-9" />
+          <CommandInput 
+            placeholder="Search location..." 
+            className="h-9"
+            id="location-search-input"
+          />
           <CommandList>
             <CommandEmpty>No location found.</CommandEmpty>
             <CommandGroup>
@@ -74,6 +78,7 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
                 <CommandItem
                   key={location.value}
                   value={location.value}
+                  id={`location-option-${location.value}`}
                   onSelect={(currentValue) => {
                     onChange(currentValue === value ? "" : currentValue);
                     setOpen(false);

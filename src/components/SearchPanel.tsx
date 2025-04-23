@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -56,7 +57,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
 
   if (variant === "separate-dates") {
     return (
-      <Card className={`bg-white shadow-lg ${className}`}>
+      <Card className={`bg-white shadow-lg ${className}`} id="search-panel">
         <CardContent className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
             <div className="md:col-span-4">
@@ -66,7 +67,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
               <LocationSelector
                 value={location}
                 onChange={setLocation}
-                id="location"
+                id="location-selector"
               />
             </div>
 
@@ -77,7 +78,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
-                    id="start-date"
+                    id="pickup-date"
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal bg-white",
@@ -108,7 +109,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
-                    id="end-date"
+                    id="return-date"
                     variant="outline"
                     className={cn(
                       "w-full justify-start text-left font-normal bg-white",
@@ -134,6 +135,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
 
             <div className="md:col-span-2 flex items-end">
               <Button
+                id="search-button"
                 className="w-full bg-blue-600 hover:bg-blue-700 h-10"
                 onClick={handleSearch}
                 disabled={!location || !startDate || !endDate}
@@ -148,7 +150,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
   }
 
   return (
-    <Card className={`bg-white shadow-lg ${className}`}>
+    <Card className={`bg-white shadow-lg ${className}`} id="search-panel">
       <CardContent className="p-6">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
           <div className="md:col-span-4">
@@ -158,7 +160,7 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
             <LocationSelector
               value={location}
               onChange={setLocation}
-              id="location"
+              id="location-selector"
             />
           </div>
 
@@ -169,12 +171,13 @@ const SearchPanel: React.FC<SearchPanelProps> = ({ className }) => {
             <DateRangePicker
               value={dateRange}
               onChange={setDateRange}
-              id="dates"
+              id="date-range-picker"
             />
           </div>
 
           <div className="md:col-span-2 flex items-end">
             <Button
+              id="search-button"
               className="w-full bg-blue-600 hover:bg-blue-700 h-10"
               onClick={handleSearch}
               disabled={!location || !dateRange.from || !dateRange.to}
