@@ -1,47 +1,32 @@
 
-import databaseConfig, { useDatabaseStore } from '@/config/database';
+import mysql from 'mysql2/promise';
+import databaseConfig from '@/config/database';
 
-// Check if we're in a browser environment
-const isBrowser = typeof window !== 'undefined';
+// Global configuration flag to determine data source
+let useDatabase = false;
 
-// Only create a pool if we're not in a browser
-let pool: any = null;
+export const setUseDatabase = (value: boolean) => {
+  useDatabase = value;
+};
 
-// Only import mysql2 if we're not in a browser
-if (!isBrowser) {
-  try {
-    const mysql = require('mysql2/promise');
-    
-    // Create a connection pool
-    pool = mysql.createPool({
-      host: databaseConfig.host,
-      port: databaseConfig.port,
-      user: databaseConfig.user,
-      password: databaseConfig.password,
-      database: databaseConfig.database,
-      waitForConnections: true,
-      connectionLimit: 10,
-      queueLimit: 0,
-    });
-  } catch (error) {
-    console.error('Failed to initialize MySQL connection:', error);
-  }
-}
+export const getUseDatabase = () => {
+  return useDatabase;
+};
+
+// Create a connection pool
+export const pool = mysql.createPool({
+  host: databaseConfig.host,
+  port: databaseConfig.port,
+  user: databaseConfig.user,
+  password: databaseConfig.password,
+  database: databaseConfig.database,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+});
 
 // Test connection function
 export const testConnection = async (): Promise<boolean> => {
-  const { useDatabase } = useDatabaseStore.getState();
-  
-  if (!useDatabase || isBrowser) {
-    console.log('Database connections are not enabled or running in browser environment');
-    return false;
-  }
-  
-  if (!pool) {
-    console.error('MySQL pool not initialized');
-    return false;
-  }
-  
   try {
     const connection = await pool.getConnection();
     connection.release();
@@ -55,13 +40,6 @@ export const testConnection = async (): Promise<boolean> => {
 
 // Generic query function
 export const query = async <T>(sql: string, params?: any[]): Promise<T[]> => {
-  const { useDatabase } = useDatabaseStore.getState();
-  
-  if (!useDatabase || isBrowser || !pool) {
-    console.log('Database queries are not enabled or running in browser environment');
-    throw new Error('Database connection not available');
-  }
-  
   try {
     const [rows] = await pool.query(sql, params);
     return rows as T[];
@@ -70,6 +48,3 @@ export const query = async <T>(sql: string, params?: any[]): Promise<T[]> => {
     throw error;
   }
 };
-
-// Export the store hook for components to use
-export { useDatabaseStore };
