@@ -3,7 +3,8 @@ import React, { useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { setUseDatabase, getUseDatabase, testConnection } from "@/utils/database";
+import { testConnection } from "@/utils/database";
+import { useDatabaseStore } from "@/config/database";
 import { toast } from "sonner";
 
 interface DatabaseToggleProps {
@@ -11,23 +12,21 @@ interface DatabaseToggleProps {
 }
 
 const DatabaseToggle: React.FC<DatabaseToggleProps> = ({ className }) => {
-  const [useDb, setUseDb] = useState(getUseDatabase());
+  const { useDatabase, setUseDatabase } = useDatabaseStore();
   const [isConnected, setIsConnected] = useState(false);
   const [checking, setChecking] = useState(false);
   const [isBrowser, setIsBrowser] = useState(false);
 
   useEffect(() => {
-    // Check if we're in a browser environment
     setIsBrowser(typeof window !== 'undefined');
   }, []);
 
   useEffect(() => {
-    // Check database connection when component mounts or when useDb changes
     const checkConnection = async () => {
-      if (useDb) {
+      if (useDatabase) {
         if (isBrowser) {
           toast.error("Database connections are not available in browser environments");
-          setUseDb(false);
+          setUseDatabase(false);
           setIsConnected(false);
           return;
         }
@@ -38,7 +37,7 @@ const DatabaseToggle: React.FC<DatabaseToggleProps> = ({ className }) => {
           setIsConnected(connected);
           if (!connected) {
             toast.error("Database connection failed. Using local data.");
-            setUseDb(false);
+            setUseDatabase(false);
           } else {
             toast.success("Connected to database successfully!");
           }
@@ -46,7 +45,7 @@ const DatabaseToggle: React.FC<DatabaseToggleProps> = ({ className }) => {
           console.error("Connection test error:", error);
           setIsConnected(false);
           toast.error("Database connection failed. Using local data.");
-          setUseDb(false);
+          setUseDatabase(false);
         } finally {
           setChecking(false);
         }
@@ -54,14 +53,13 @@ const DatabaseToggle: React.FC<DatabaseToggleProps> = ({ className }) => {
     };
 
     checkConnection();
-  }, [useDb, isBrowser]);
+  }, [useDatabase, isBrowser, setUseDatabase]);
 
   const handleToggle = (checked: boolean) => {
     if (isBrowser && checked) {
       toast.error("Database connections are not available in browser environments");
       return;
     }
-    setUseDb(checked);
     setUseDatabase(checked);
   };
 
@@ -71,7 +69,7 @@ const DatabaseToggle: React.FC<DatabaseToggleProps> = ({ className }) => {
         <div className="flex items-center space-x-4">
           <Switch
             id="database-mode"
-            checked={useDb}
+            checked={useDatabase}
             onCheckedChange={handleToggle}
             disabled={checking || isBrowser}
           />
@@ -80,7 +78,7 @@ const DatabaseToggle: React.FC<DatabaseToggleProps> = ({ className }) => {
             <p className="text-sm text-gray-500">
               {isBrowser ? "Database connections not available in browser" :
                 checking ? "Checking connection..." : 
-                  useDb ? 
+                  useDatabase ? 
                     isConnected ? 
                       "Using external MySQL database" : 
                       "Failed to connect, using local data" : 
