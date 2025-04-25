@@ -7,7 +7,6 @@ export interface DatabaseConfig {
   database: string;
 }
 
-// Default database configuration
 const databaseConfig: DatabaseConfig = {
   host: import.meta.env.VITE_DB_HOST || 'localhost',
   port: Number(import.meta.env.VITE_DB_PORT) || 3306,
@@ -17,3 +16,6 @@ const databaseConfig: DatabaseConfig = {
 };
 
 export default databaseConfig;
+
+// Add DatabaseToggle component export
+export { default as DatabaseToggle } from '../components/DatabaseToggle';
