@@ -14,11 +14,24 @@ const DatabaseToggle: React.FC<DatabaseToggleProps> = ({ className }) => {
   const [useDb, setUseDb] = useState(getUseDatabase());
   const [isConnected, setIsConnected] = useState(false);
   const [checking, setChecking] = useState(false);
+  const [isBrowser, setIsBrowser] = useState(false);
+
+  useEffect(() => {
+    // Check if we're in a browser environment
+    setIsBrowser(typeof window !== 'undefined');
+  }, []);
 
   useEffect(() => {
     // Check database connection when component mounts or when useDb changes
     const checkConnection = async () => {
       if (useDb) {
+        if (isBrowser) {
+          toast.error("Database connections are not available in browser environments");
+          setUseDb(false);
+          setIsConnected(false);
+          return;
+        }
+
         setChecking(true);
         try {
           const connected = await testConnection();
@@ -41,9 +54,13 @@ const DatabaseToggle: React.FC<DatabaseToggleProps> = ({ className }) => {
     };
 
     checkConnection();
-  }, [useDb]);
+  }, [useDb, isBrowser]);
 
   const handleToggle = (checked: boolean) => {
+    if (isBrowser && checked) {
+      toast.error("Database connections are not available in browser environments");
+      return;
+    }
     setUseDb(checked);
     setUseDatabase(checked);
   };
@@ -56,17 +73,18 @@ const DatabaseToggle: React.FC<DatabaseToggleProps> = ({ className }) => {
             id="database-mode"
             checked={useDb}
             onCheckedChange={handleToggle}
-            disabled={checking}
+            disabled={checking || isBrowser}
           />
           <div className="grid gap-1">
             <Label htmlFor="database-mode">Database Mode</Label>
             <p className="text-sm text-gray-500">
-              {checking ? "Checking connection..." : 
-                useDb ? 
-                  isConnected ? 
-                    "Using external MySQL database" : 
-                    "Failed to connect, using local data" : 
-                  "Using local data from code"}
+              {isBrowser ? "Database connections not available in browser" :
+                checking ? "Checking connection..." : 
+                  useDb ? 
+                    isConnected ? 
+                      "Using external MySQL database" : 
+                      "Failed to connect, using local data" : 
+                    "Using local data from code"}
             </p>
           </div>
         </div>
