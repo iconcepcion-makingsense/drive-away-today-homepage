@@ -5,6 +5,7 @@ export interface DatabaseConfig {
   user: 'avnadmin';
   password: 'AVNS_LOoEtbTCLsPIDNydWmW';
   database: 'car_rental';
+  
 }
 
 // Default database configuration
