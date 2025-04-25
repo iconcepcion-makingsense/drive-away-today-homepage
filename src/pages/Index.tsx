@@ -6,7 +6,7 @@ import FeaturedCars from "@/components/FeaturedCars";
 import BenefitsSection from "@/components/BenefitsSection";
 import Footer from "@/components/Footer";
 import { useGrowthBook } from "@/contexts/GrowthBookContext";
-import { DatabaseToggle } from "@/config/database";
+import DatabaseToggle from "@/components/DatabaseToggle";
 
 const Index = () => {
   const { ready, growthbook } = useGrowthBook();
@@ -22,9 +22,12 @@ const Index = () => {
         <FeaturedCars />
         <BenefitsSection />
         
-        <div className="container mx-auto px-4 mb-8">
-          <DatabaseToggle className="max-w-md mx-auto" />
-        </div>
+        {/* Add the database toggle in development mode */}
+        {import.meta.env.DEV && (
+          <div className="container mx-auto px-4 mb-8">
+            <DatabaseToggle className="max-w-md mx-auto" />
+          </div>
+        )}
       </main>
       <Footer />
       
