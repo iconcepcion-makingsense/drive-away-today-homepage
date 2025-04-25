@@ -1,44 +1,54 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { getCarCategories, CarCategory } from "@/services/carsService";
 
 interface FeaturedCarsProps {
   className?: string;
 }
 
-const carCategories = [
-  {
-    id: "economy",
-    name: "Economy",
-    image: "/car-economy.jpg",
-    price: "29",
-    features: ["Fuel Efficient", "Budget Friendly", "Compact"],
-  },
-  {
-    id: "suv",
-    name: "SUV",
-    image: "/car-suv.jpg",
-    price: "59",
-    features: ["Spacious", "All-terrain", "Family Friendly"],
-  },
-  {
-    id: "luxury",
-    name: "Luxury",
-    image: "/car-luxury.jpg",
-    price: "99",
-    features: ["Premium Experience", "High Performance", "Advanced Features"],
-  },
-  {
-    id: "electric",
-    name: "Electric",
-    image: "/car-electric.jpg",
-    price: "49",
-    features: ["Zero Emissions", "Modern Technology", "Cost Effective"],
-  },
-];
-
 const FeaturedCars: React.FC<FeaturedCarsProps> = ({ className }) => {
+  const [carCategories, setCarCategories] = useState<CarCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCarCategories = async () => {
+      try {
+        setLoading(true);
+        const data = await getCarCategories();
+        setCarCategories(data);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching car categories:", err);
+        setError("Failed to load car categories");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCarCategories();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className={`container mx-auto px-4 py-12 ${className}`}>
+        <h2 className="text-3xl font-bold text-center mb-2">Featured Car Categories</h2>
+        <p className="text-gray-600 text-center mb-10">Loading...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={`container mx-auto px-4 py-12 ${className}`}>
+        <h2 className="text-3xl font-bold text-center mb-2">Featured Car Categories</h2>
+        <p className="text-red-500 text-center mb-10">{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div className={`container mx-auto px-4 py-12 ${className}`}>
       <h2 className="text-3xl font-bold text-center mb-2">Featured Car Categories</h2>

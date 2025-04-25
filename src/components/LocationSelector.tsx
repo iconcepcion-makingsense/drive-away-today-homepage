@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Check, ChevronDown, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -16,6 +16,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { getLocations, Location } from "@/services/locationsService";
 
 interface LocationSelectorProps {
   value: string;
@@ -24,15 +25,6 @@ interface LocationSelectorProps {
   className?: string;
 }
 
-const locations = [
-  { value: "new-york", label: "New York City" },
-  { value: "los-angeles", label: "Los Angeles" },
-  { value: "chicago", label: "Chicago" },
-  { value: "miami", label: "Miami" },
-  { value: "san-francisco", label: "San Francisco" },
-  { value: "las-vegas", label: "Las Vegas" },
-];
-
 const LocationSelector: React.FC<LocationSelectorProps> = ({
   value,
   onChange,
@@ -40,6 +32,27 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
   className,
 }) => {
   const [open, setOpen] = React.useState(false);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchLocations = async () => {
+      try {
+        setLoading(true);
+        const data = await getLocations();
+        setLocations(data);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching locations:", err);
+        setError("Failed to load locations");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchLocations();
+  }, []);
 
   const selectedLocation = locations.find((location) => location.value === value);
 
@@ -56,10 +69,11 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             !value && "text-muted-foreground",
             className
           )}
+          disabled={loading}
         >
           <div className="flex items-center">
             <MapPin className="mr-2 h-4 w-4 text-blue-600" />
-            {selectedLocation ? selectedLocation.label : "Select location"}
+            {loading ? "Loading..." : selectedLocation ? selectedLocation.label : "Select location"}
           </div>
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -72,31 +86,39 @@ const LocationSelector: React.FC<LocationSelectorProps> = ({
             id="location-search-input"
           />
           <CommandList>
-            <CommandEmpty>No location found.</CommandEmpty>
-            <CommandGroup>
-              {locations.map((location) => (
-                <CommandItem
-                  key={location.value}
-                  value={location.value}
-                  id={`location-option-${location.value}`}
-                  onSelect={(currentValue) => {
-                    onChange(currentValue === value ? "" : currentValue);
-                    setOpen(false);
-                  }}
-                >
-                  <div className="flex items-center">
-                    <MapPin className="mr-2 h-4 w-4 text-blue-600" />
-                    {location.label}
-                  </div>
-                  <Check
-                    className={cn(
-                      "ml-auto h-4 w-4",
-                      value === location.value ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            {loading ? (
+              <div className="py-6 text-center text-sm">Loading locations...</div>
+            ) : error ? (
+              <div className="py-6 text-center text-sm text-red-500">{error}</div>
+            ) : (
+              <>
+                <CommandEmpty>No location found.</CommandEmpty>
+                <CommandGroup>
+                  {locations.map((location) => (
+                    <CommandItem
+                      key={location.value}
+                      value={location.value}
+                      id={`location-option-${location.value}`}
+                      onSelect={(currentValue) => {
+                        onChange(currentValue === value ? "" : currentValue);
+                        setOpen(false);
+                      }}
+                    >
+                      <div className="flex items-center">
+                        <MapPin className="mr-2 h-4 w-4 text-blue-600" />
+                        {location.label}
+                      </div>
+                      <Check
+                        className={cn(
+                          "ml-auto h-4 w-4",
+                          value === location.value ? "opacity-100" : "opacity-0"
+                        )}
+                      />
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </>
+            )}
           </CommandList>
         </Command>
       </PopoverContent>
