@@ -1,6 +1,4 @@
 
-import { create } from 'zustand';
-
 export interface DatabaseConfig {
   host: string;
   port: number;
@@ -9,18 +7,6 @@ export interface DatabaseConfig {
   database: string;
 }
 
-interface DatabaseStore {
-  useDatabase: boolean;
-  setUseDatabase: (value: boolean) => void;
-}
-
-// Create a store for managing database toggle state
-export const useDatabaseStore = create<DatabaseStore>((set) => ({
-  useDatabase: false,
-  setUseDatabase: (value: boolean) => set({ useDatabase: value }),
-}));
-
-// Default database configuration
 const databaseConfig: DatabaseConfig = {
   host: import.meta.env.VITE_DB_HOST || 'localhost',
   port: Number(import.meta.env.VITE_DB_PORT) || 3306,
@@ -30,3 +16,6 @@ const databaseConfig: DatabaseConfig = {
 };
 
 export default databaseConfig;
+
+// Add DatabaseToggle component export
+export { default as DatabaseToggle } from '../components/DatabaseToggle';
