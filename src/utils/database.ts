@@ -1,5 +1,14 @@
 
-import databaseConfig, { useDatabaseStore } from '@/config/database';
+// Flag to determine if we should use the database (only works in server environment)
+let useDatabase = false;
+
+export const setUseDatabase = (value: boolean) => {
+  useDatabase = value;
+};
+
+export const getUseDatabase = () => {
+  return useDatabase;
+};
 
 // Check if we're in a browser environment
 const isBrowser = typeof window !== 'undefined';
@@ -10,7 +19,9 @@ let pool: any = null;
 // Only import mysql2 if we're not in a browser
 if (!isBrowser) {
   try {
+    // Dynamic import to avoid loading in the browser
     const mysql = require('mysql2/promise');
+    const databaseConfig = require('@/config/database').default;
     
     // Create a connection pool
     pool = mysql.createPool({
@@ -30,10 +41,8 @@ if (!isBrowser) {
 
 // Test connection function
 export const testConnection = async (): Promise<boolean> => {
-  const { useDatabase } = useDatabaseStore.getState();
-  
-  if (!useDatabase || isBrowser) {
-    console.log('Database connections are not enabled or running in browser environment');
+  if (isBrowser) {
+    console.log('Running in browser environment, database connections are not available');
     return false;
   }
   
@@ -55,10 +64,8 @@ export const testConnection = async (): Promise<boolean> => {
 
 // Generic query function
 export const query = async <T>(sql: string, params?: any[]): Promise<T[]> => {
-  const { useDatabase } = useDatabaseStore.getState();
-  
-  if (!useDatabase || isBrowser || !pool) {
-    console.log('Database queries are not enabled or running in browser environment');
+  if (isBrowser || !pool) {
+    console.log('Cannot run database queries in browser environment or pool not initialized');
     throw new Error('Database connection not available');
   }
   
@@ -70,6 +77,3 @@ export const query = async <T>(sql: string, params?: any[]): Promise<T[]> => {
     throw error;
   }
 };
-
-// Export the store hook for components to use
-export { useDatabaseStore };
