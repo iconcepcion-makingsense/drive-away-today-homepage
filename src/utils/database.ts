@@ -16,7 +16,8 @@ const isBrowser = typeof window !== 'undefined';
 // Only create a pool if we're not in a browser
 let pool: any = null;
 // print isbrowser variable
-console.error('isBrowser: %', isBrowser)
+console.error('isBrowser:');
+console.error( isBrowser);
 // Only import mysql2 if we're not in a browser
 if (!isBrowser) {
   try {
