@@ -1,6 +1,6 @@
 
 // Flag to determine if we should use the database (only works in server environment)
-let useDatabase = false;
+let useDatabase = true;
 
 export const setUseDatabase = (value: boolean) => {
   useDatabase = value;
