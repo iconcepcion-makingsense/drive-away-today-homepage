@@ -9,7 +9,7 @@ export interface CarCategory {
   features: string[];
 }
 
-// Local data
+// Local data for fallback
 const localCarCategories: CarCategory[] = [
   {
     id: "economy",
@@ -42,35 +42,35 @@ const localCarCategories: CarCategory[] = [
 ];
 
 export const getCarCategories = async (): Promise<CarCategory[]> => {
-  if (getUseDatabase()) {
-    try {
-      // Get all car categories
-      const categories = await query<{ id: string; name: string; image: string; price: number }>(
-        'SELECT id, name, image, price FROM car_categories'
+  if (!getUseDatabase()) {
+    return localCarCategories;
+  }
+
+  try {
+    // Get all car categories
+    const categories = await query<{ id: string; name: string; image: string; price: number }>(
+      'SELECT id, name, image, price FROM car_categories'
+    );
+    
+    // For each category, get its features
+    const result: CarCategory[] = [];
+    
+    for (const category of categories) {
+      const features = await query<{ feature: string }>(
+        'SELECT feature FROM car_features WHERE car_category_id = ?',
+        [category.id]
       );
       
-      // For each category, get its features
-      const result: CarCategory[] = [];
-      
-      for (const category of categories) {
-        const features = await query<{ feature: string }>(
-          'SELECT feature FROM car_features WHERE car_category_id = ?',
-          [category.id]
-        );
-        
-        result.push({
-          ...category,
-          price: category.price.toString(), // Convert to string to match existing format
-          features: features.map(f => f.feature)
-        });
-      }
-      
-      return result;
-    } catch (error) {
-      console.error('Failed to fetch car categories from database:', error);
-      return localCarCategories; // Fallback to local data
+      result.push({
+        ...category,
+        price: category.price.toString(), // Convert to string to match existing format
+        features: features.map(f => f.feature)
+      });
     }
-  } else {
-    return localCarCategories;
+    
+    return result;
+  } catch (error) {
+    console.error('Failed to fetch car categories from database:', error);
+    return localCarCategories; // Fallback to local data
   }
 };

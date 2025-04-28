@@ -6,7 +6,7 @@ export interface Location {
   label: string;
 }
 
-// Local data
+// Local data for fallback
 const localLocations: Location[] = [
   { value: "new-york", label: "New York City" },
   { value: "los-angeles", label: "Los Angeles" },
@@ -17,14 +17,14 @@ const localLocations: Location[] = [
 ];
 
 export const getLocations = async (): Promise<Location[]> => {
-  if (getUseDatabase()) {
-    try {
-      return await query<Location>('SELECT value, label FROM locations');
-    } catch (error) {
-      console.error('Failed to fetch locations from database:', error);
-      return localLocations; // Fallback to local data
-    }
-  } else {
+  if (!getUseDatabase()) {
     return localLocations;
+  }
+
+  try {
+    return await query<Location>('SELECT value, label FROM locations');
+  } catch (error) {
+    console.error('Failed to fetch locations from database:', error);
+    return localLocations; // Fallback to local data
   }
 };
