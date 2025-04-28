@@ -1,30 +1,26 @@
 
-import { getUseDatabase, query } from '@/utils/database';
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Location {
   value: string;
   label: string;
 }
 
-// Local data for fallback
-const localLocations: Location[] = [
-  { value: "new-york", label: "New York City" },
-  { value: "los-angeles", label: "Los Angeles" },
-  { value: "chicago", label: "Chicago" },
-  { value: "miami", label: "Miami" },
-  { value: "san-francisco", label: "San Francisco" },
-  { value: "las-vegas", label: "Las Vegas" },
-];
-
 export const getLocations = async (): Promise<Location[]> => {
-  if (!getUseDatabase()) {
-    return localLocations;
-  }
-
   try {
-    return await query<Location>('SELECT value, label FROM locations');
+    const { data, error } = await supabase
+      .from('locations')
+      .select('value, label');
+
+    if (error) {
+      console.error('Error fetching locations:', error);
+      throw error;
+    }
+
+    return data || [];
   } catch (error) {
-    console.error('Failed to fetch locations from database:', error);
-    return localLocations; // Fallback to local data
+    console.error('Failed to fetch locations:', error);
+    throw error;
   }
 };
+
