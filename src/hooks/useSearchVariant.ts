@@ -1,24 +1,20 @@
 
-import { useEffect, useState } from 'react';
+import { useExperiment, ExperimentConfig } from './useExperiment';
 
 type SearchVariant = 'default' | 'separate-dates';
 
-export const useSearchVariant = () => {
-  const [variant, setVariant] = useState<SearchVariant>('default');
+// Configuration for the search panel experiment
+const searchPanelExperiment: ExperimentConfig = {
+  id: 'search-panel-variant',
+  variants: ['default', 'separate-dates'],
+  weights: [0.5, 0.5],
+  persistKey: 'search-variant'
+};
 
-  useEffect(() => {
-    // Check if user already has an assigned variant in localStorage
-    const storedVariant = localStorage.getItem('search-variant');
-    
-    if (storedVariant === 'default' || storedVariant === 'separate-dates') {
-      setVariant(storedVariant);
-    } else {
-      // Randomly assign variant (50/50)
-      const newVariant: SearchVariant = Math.random() < 0.5 ? 'default' : 'separate-dates';
-      localStorage.setItem('search-variant', newVariant);
-      setVariant(newVariant);
-    }
-  }, []);
-
-  return variant;
+/**
+ * Hook to get the assigned search panel variant
+ * @returns The assigned variant ('default' or 'separate-dates')
+ */
+export const useSearchVariant = (): SearchVariant => {
+  return useExperiment<SearchVariant>(searchPanelExperiment);
 };
