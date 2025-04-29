@@ -10,6 +10,8 @@ import Locations from "./pages/Locations";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
+import SearchResults from "./pages/SearchResults";
+import CarDetail from "./pages/CarDetail";
 import { GrowthBookWrapper } from "./contexts/GrowthBookContext";
 
 const queryClient = new QueryClient();
@@ -27,6 +29,8 @@ const App = () => (
             <Route path="/locations" element={<Locations />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/search-results" element={<SearchResults />} />
+            <Route path="/car/:id" element={<CarDetail />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -62,6 +62,60 @@ export type Database = {
           },
         ]
       }
+      cars: {
+        Row: {
+          car_category_id: string
+          created_at: string | null
+          daily_rate: number
+          description: string
+          id: string
+          image_url: string
+          is_available: boolean | null
+          location_id: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          car_category_id: string
+          created_at?: string | null
+          daily_rate: number
+          description: string
+          id?: string
+          image_url: string
+          is_available?: boolean | null
+          location_id: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          car_category_id?: string
+          created_at?: string | null
+          daily_rate?: number
+          description?: string
+          id?: string
+          image_url?: string
+          is_available?: boolean | null
+          location_id?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cars_car_category_id_fkey"
+            columns: ["car_category_id"]
+            isOneToOne: false
+            referencedRelation: "car_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cars_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       locations: {
         Row: {
           created_at: string | null
@@ -91,7 +145,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      search_available_cars: {
+        Args: { location_value: string; start_date: string; end_date: string }
+        Returns: {
+          id: string
+          car_category_id: string
+          location_id: string
+          title: string
+          description: string
+          daily_rate: number
+          image_url: string
+          location_name: string
+          category_name: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
