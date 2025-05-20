@@ -1,6 +1,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useGrowthBook } from '@/contexts/GrowthBookContext';
+import { trackExperiment } from '@/utils/gtm';
 
 export interface ExperimentConfig {
   id: string;
@@ -36,6 +37,11 @@ export const useExperiment = <T extends string>(config: ExperimentConfig): T => 
     
     if (variants.includes(storedVariant as T)) {
       setVariant(storedVariant as T);
+      
+      // Track experiment view if using locally stored variant
+      const variantIndex = variants.indexOf(storedVariant as T);
+      trackExperiment(id, variantIndex, storedVariant as string);
+      
       return;
     }
     
@@ -45,6 +51,8 @@ export const useExperiment = <T extends string>(config: ExperimentConfig): T => 
       if (experiment && variants.includes(experiment as T)) {
         setVariant(experiment as T);
         localStorage.setItem(persistKey, experiment);
+        
+        // GrowthBook will handle tracking through its trackingCallback
         return;
       }
 
@@ -59,6 +67,9 @@ export const useExperiment = <T extends string>(config: ExperimentConfig): T => 
         if (random < cumulativeWeight) {
           setVariant(variants[i] as T);
           localStorage.setItem(persistKey, variants[i]);
+          
+          // Track locally assigned experiment
+          trackExperiment(id, i, variants[i]);
           break;
         }
       }
