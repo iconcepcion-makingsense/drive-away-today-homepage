@@ -1,8 +1,6 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { GrowthBook, GrowthBookProvider } from '@growthbook/growthbook-react';
 import { toast } from "@/components/ui/use-toast";
-import { pushEvent } from "@/utils/gtm";
 
 // GrowthBook client key from your GrowthBook dashboard
 const CLIENT_KEY = "sdk-UJg9fpEtmfOWmn"; // Replace this with your actual client key from GrowthBook
@@ -34,19 +32,9 @@ const growthbook = new GrowthBook({
   clientKey: CLIENT_KEY,
   trackingCallback: (experiment, result) => {
     console.log("Experiment Viewed:", experiment.key, result.variationId);
-    
-    // Send experiment data to Google Analytics via GTM
-    pushEvent('experiment_viewed', {
-      experiment_id: experiment.key,
-      variation_id: result.variationId,
-      variation_name: result.value
-    });
   },
   attributes: {
     deviceType: 'web',
-    // Here you can add additional user attributes for targeting
-    // userId: getUserId(), // You can add this if you implement user authentication
-    // userType: getUserType(),
   }
 });
 
