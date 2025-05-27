@@ -1,37 +1,17 @@
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getCarCategories, CarCategory } from "@/services/carsService";
+import { useCarCategories } from "@/hooks/useApi";
 
 interface FeaturedCarsProps {
   className?: string;
 }
 
 const FeaturedCars: React.FC<FeaturedCarsProps> = ({ className }) => {
-  const [carCategories, setCarCategories] = useState<CarCategory[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: carCategories = [], isLoading, error } = useCarCategories();
 
-  useEffect(() => {
-    const fetchCarCategories = async () => {
-      try {
-        setLoading(true);
-        const data = await getCarCategories();
-        setCarCategories(data);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching car categories:", err);
-        setError("Failed to load car categories");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCarCategories();
-  }, []);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className={`container mx-auto px-4 py-12 ${className}`}>
         <h2 className="text-3xl font-bold text-center mb-2">Featured Car Categories</h2>
@@ -44,7 +24,7 @@ const FeaturedCars: React.FC<FeaturedCarsProps> = ({ className }) => {
     return (
       <div className={`container mx-auto px-4 py-12 ${className}`}>
         <h2 className="text-3xl font-bold text-center mb-2">Featured Car Categories</h2>
-        <p className="text-red-500 text-center mb-10">{error}</p>
+        <p className="text-red-500 text-center mb-10">Failed to load car categories</p>
       </div>
     );
   }

@@ -1,9 +1,8 @@
 
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Car, getCarById } from "@/services/searchService";
 import { Button } from "@/components/ui/button";
 import { Loader2, Check, ArrowLeft } from "lucide-react";
 import { 
@@ -14,31 +13,15 @@ import {
   DialogFooter
 } from "@/components/ui/dialog";
 import { pushEvent } from "@/utils/gtm";
+import { useCarById } from "@/hooks/useApi";
+import { useState } from "react";
 
 const CarDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [car, setCar] = useState<Car | null>(null);
-  const [loading, setLoading] = useState(true);
   const [showDialog, setShowDialog] = useState(false);
 
-  useEffect(() => {
-    async function fetchCarDetail() {
-      if (!id) return;
-
-      try {
-        setLoading(true);
-        const carData = await getCarById(id);
-        setCar(carData);
-      } catch (error) {
-        console.error("Error fetching car details:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchCarDetail();
-  }, [id]);
+  const { data: car, isLoading, error } = useCarById(id as string);
 
   const handleBookNow = () => {
     if (car) {
@@ -61,7 +44,7 @@ const CarDetail = () => {
     navigate(-1);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex flex-col bg-white">
         <Navbar />
@@ -74,7 +57,7 @@ const CarDetail = () => {
     );
   }
 
-  if (!car) {
+  if (error || !car) {
     return (
       <div className="min-h-screen flex flex-col bg-white">
         <Navbar />

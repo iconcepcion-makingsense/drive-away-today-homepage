@@ -3,55 +3,42 @@ import React, { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useLocation } from "react-router-dom";
-import { Car, searchAvailableCars } from "@/services/searchService";
 import CarCard from "@/components/CarCard";
 import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
+import { useSearchCars } from "@/hooks/useApi";
+import type { SearchParams } from "@/services/carsApi";
 
 const SearchResults = () => {
   const location = useLocation();
-  const [loading, setLoading] = useState(true);
-  const [cars, setCars] = useState<Car[]>([]);
-  const searchParams = location.state as { 
+  const [searchParams, setSearchParams] = useState<SearchParams | null>(null);
+  
+  const urlSearchParams = location.state as { 
     location: string;
     startDate: Date;
     endDate: Date;
   } | null;
 
   useEffect(() => {
-    async function fetchResults() {
-      if (!searchParams) {
-        setLoading(false);
-        return;
-      }
-      
-      try {
-        setLoading(true);
-        const formattedStartDate = new Date(searchParams.startDate);
-        const formattedEndDate = new Date(searchParams.endDate);
-        
-        const results = await searchAvailableCars({
-          location: searchParams.location,
-          startDate: formattedStartDate,
-          endDate: formattedEndDate
-        });
-        
-        setCars(results);
-      } catch (error) {
-        console.error("Error fetching search results:", error);
-      } finally {
-        setLoading(false);
-      }
+    if (urlSearchParams) {
+      setSearchParams({
+        location: urlSearchParams.location,
+        startDate: new Date(urlSearchParams.startDate),
+        endDate: new Date(urlSearchParams.endDate)
+      });
     }
+  }, [urlSearchParams]);
 
-    fetchResults();
-  }, [searchParams]);
+  const { data: cars = [], isLoading, error } = useSearchCars(
+    searchParams as SearchParams, 
+    !!searchParams
+  );
 
   const renderSearchSummary = () => {
     if (!searchParams) return null;
 
-    const startDateFormatted = format(new Date(searchParams.startDate), "MMM d, yyyy");
-    const endDateFormatted = format(new Date(searchParams.endDate), "MMM d, yyyy");
+    const startDateFormatted = format(searchParams.startDate, "MMM d, yyyy");
+    const endDateFormatted = format(searchParams.endDate, "MMM d, yyyy");
 
     return (
       <div className="mb-6">
@@ -74,10 +61,17 @@ const SearchResults = () => {
       <main className="flex-1 container mx-auto px-4 py-8">
         {renderSearchSummary()}
 
-        {loading ? (
+        {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
             <span className="ml-2 text-lg">Searching for available cars...</span>
+          </div>
+        ) : error ? (
+          <div className="py-12 text-center">
+            <h3 className="text-xl font-medium mb-2">Error loading cars</h3>
+            <p className="text-gray-600">
+              There was an error loading the search results. Please try again.
+            </p>
           </div>
         ) : cars.length === 0 ? (
           <div className="py-12 text-center">
