@@ -21,9 +21,9 @@ const Index = () => {
   }));
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div id="index-page" className="min-h-screen flex flex-col bg-white">
       <Navbar />
-      <main className="flex-1">
+      <main id="index-main" className="flex-1">
         <HeroSection />
         <FeaturedCars />
         <BenefitsSection />
@@ -32,18 +32,18 @@ const Index = () => {
       
       {/* Add a discreet indicator showing GrowthBook status in development */}
       {import.meta.env.DEV && (
-        <div className="fixed bottom-2 right-2 text-xs bg-black/70 text-white px-2 py-1 rounded-md flex flex-col gap-1">
-          <div className="flex items-center gap-1">
-            <div className={`w-2 h-2 rounded-full ${ready ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
+        <div id="growthbook-dev-indicator" className="fixed bottom-2 right-2 text-xs bg-black/70 text-white px-2 py-1 rounded-md flex flex-col gap-1">
+          <div id="growthbook-status" className="flex items-center gap-1">
+            <div id="growthbook-status-indicator" className={`w-2 h-2 rounded-full ${ready ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
             GrowthBook: {ready ? (isUsingPlaceholder ? "Local Mode" : "✓ Connected") : "⏳ Loading"}
           </div>
           
           {/* Show active experiments */}
           {activeExperiments.length > 0 && (
-            <div className="border-t border-gray-600 mt-1 pt-1 text-[10px]">
-              <div className="font-semibold">Active Experiments:</div>
+            <div id="growthbook-experiments" className="border-t border-gray-600 mt-1 pt-1 text-[10px]">
+              <div id="growthbook-experiments-title" className="font-semibold">Active Experiments:</div>
               {activeExperiments.map(exp => (
-                <div key={exp.id} className="flex justify-between">
+                <div key={exp.id} id={`growthbook-experiment-${exp.id}`} className="flex justify-between">
                   <span>{exp.id}:</span>
                   <span className="font-mono">{exp.value}</span>
                 </div>
