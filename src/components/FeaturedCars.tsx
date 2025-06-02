@@ -16,10 +16,10 @@ const FeaturedCars: React.FC<FeaturedCarsProps> = ({ className }) => {
   const navigate = useNavigate();
 
   const categoryImages = {
-    'economy': 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2',
-    'luxury': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70', 
-    'suv': 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b',
-    'electric': 'https://images.unsplash.com/photo-1560958089-b8a1929cea89'
+    'economy': 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400&h=300&fit=crop',
+    'luxury': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=300&fit=crop', 
+    'suv': 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=400&h=300&fit=crop',
+    'electric': 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=400&h=300&fit=crop'
   };
 
   const handleExploreCategory = (categoryId: string) => {
@@ -72,12 +72,17 @@ const FeaturedCars: React.FC<FeaturedCarsProps> = ({ className }) => {
             >
               <div id={`featured-car-image-${car.id}`} className="h-48 bg-gray-200 relative overflow-hidden">
                 <img 
+                  id={`featured-car-img-${car.id}`}
                   src={categoryImage}
                   alt={car.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = categoryImages.economy;
+                  }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60" />
-                <div className="absolute bottom-3 left-3 text-white">
+                <div id={`featured-car-overlay-${car.id}`} className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60" />
+                <div id={`featured-car-text-overlay-${car.id}`} className="absolute bottom-3 left-3 text-white">
                   <h3 id={`featured-car-name-${car.id}`} className="text-xl font-bold">{car.name}</h3>
                   <p id={`featured-car-price-${car.id}`} className="text-sm">From ${car.price}/day</p>
                 </div>

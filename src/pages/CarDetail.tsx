@@ -44,6 +44,19 @@ const CarDetail = () => {
     navigate(-1);
   };
 
+  // Fallback image based on category
+  const getFallbackImage = (categoryName: string) => {
+    const categoryMap: { [key: string]: string } = {
+      'economy': 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop',
+      'luxury': 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&h=600&fit=crop',
+      'suv': 'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&h=600&fit=crop',
+      'electric': 'https://images.unsplash.com/photo-1560958089-b8a1929cea89?w=800&h=600&fit=crop',
+    };
+    
+    const category = categoryName.toLowerCase();
+    return categoryMap[category] || categoryMap['economy'];
+  };
+
   if (isLoading) {
     return (
       <div id="car-detail-page" className="min-h-screen flex flex-col bg-white">
@@ -73,6 +86,8 @@ const CarDetail = () => {
     );
   }
 
+  const imageUrl = car.image_url || getFallbackImage(car.category_name);
+
   return (
     <div id="car-detail-page" className="min-h-screen flex flex-col bg-white">
       <Navbar />
@@ -84,12 +99,16 @@ const CarDetail = () => {
         </div>
 
         <div id="car-detail-content" className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div id="car-detail-image-container" className="rounded-lg overflow-hidden">
+          <div id="car-detail-image-container" className="rounded-lg overflow-hidden shadow-lg">
             <img 
               id="car-detail-image"
-              src={car.image_url} 
+              src={imageUrl} 
               alt={car.title} 
               className="w-full h-auto object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = getFallbackImage(car.category_name);
+              }}
             />
           </div>
 
